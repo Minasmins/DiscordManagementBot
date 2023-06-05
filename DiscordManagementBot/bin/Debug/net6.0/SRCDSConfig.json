@@ -1,4 +1,0 @@
-{
-  "srcdsPath": "C:\\Users\\Administrator\\Desktop\\Server\\Gameserver\\CSServer",
-  "srcdsStartArguments": "-game csgo -tickrate 128 -usercon -console +sv_setsteamaccount E53D43E1666B4F007F127DFC2B768CEE -authkey 47C0AB79AE9F299CBB24F8CA2910AB05 +net_maxfilesize 64 +map de_dust +exec autoexec.cfg"
-}
