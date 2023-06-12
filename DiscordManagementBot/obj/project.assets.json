@@ -15,6 +15,18 @@
           }
         }
       },
+      "CoreRCON/5.0.5": {
+        "type": "package",
+        "dependencies": {
+          "System.IO.Pipelines": "6.0.2"
+        },
+        "compile": {
+          "lib/netstandard2.0/CoreRCON.dll": {}
+        },
+        "runtime": {
+          "lib/netstandard2.0/CoreRCON.dll": {}
+        }
+      },
       "DSharpPlus/4.4.1": {
         "type": "package",
         "dependencies": {
@@ -529,6 +541,22 @@
         },
         "runtime": {
           "lib/netstandard1.3/System.IO.FileSystem.Primitives.dll": {}
+        }
+      },
+      "System.IO.Pipelines/6.0.2": {
+        "type": "package",
+        "compile": {
+          "lib/net6.0/System.IO.Pipelines.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net6.0/System.IO.Pipelines.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/netcoreapp3.1/_._": {}
         }
       },
       "System.Linq/4.3.0": {
@@ -1365,6 +1393,20 @@
         "lib/netstandard1.0/ConcurrentCollections.xml",
         "lib/netstandard2.0/ConcurrentCollections.dll",
         "lib/netstandard2.0/ConcurrentCollections.xml"
+      ]
+    },
+    "CoreRCON/5.0.5": {
+      "sha512": "TCHEqAQBCe+MGxrLut+4iJnN9K1HGLMzzPGS6i1Aa4ZdmaH3HVHb7KYBtQJrHD3A7lgRqKLuUxPxSEITObF88g==",
+      "type": "package",
+      "path": "corercon/5.0.5",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "corercon.5.0.5.nupkg.sha512",
+        "corercon.nuspec",
+        "lib/netstandard2.0/CoreRCON.dll",
+        "logo.png"
       ]
     },
     "DSharpPlus/4.4.1": {
@@ -2441,6 +2483,31 @@
         "ref/xamarinwatchos10/_._",
         "system.io.filesystem.primitives.4.3.0.nupkg.sha512",
         "system.io.filesystem.primitives.nuspec"
+      ]
+    },
+    "System.IO.Pipelines/6.0.2": {
+      "sha512": "cb5OfQjnz+zjpJJei+f3QYK7+wWZrDdNHf3DykO6QCacpNZ80tuNgq1DC2kqlrjfEu+cMUTvulxPIrCMbBkjqg==",
+      "type": "package",
+      "path": "system.io.pipelines/6.0.2",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/netcoreapp2.0/System.IO.Pipelines.targets",
+        "buildTransitive/netcoreapp3.1/_._",
+        "lib/net461/System.IO.Pipelines.dll",
+        "lib/net461/System.IO.Pipelines.xml",
+        "lib/net6.0/System.IO.Pipelines.dll",
+        "lib/net6.0/System.IO.Pipelines.xml",
+        "lib/netcoreapp3.1/System.IO.Pipelines.dll",
+        "lib/netcoreapp3.1/System.IO.Pipelines.xml",
+        "lib/netstandard2.0/System.IO.Pipelines.dll",
+        "lib/netstandard2.0/System.IO.Pipelines.xml",
+        "system.io.pipelines.6.0.2.nupkg.sha512",
+        "system.io.pipelines.nuspec",
+        "useSharedDesignerContext.txt"
       ]
     },
     "System.Linq/4.3.0": {
@@ -4333,6 +4400,7 @@
   },
   "projectFileDependencyGroups": {
     "net6.0": [
+      "CoreRCON >= 5.0.5",
       "DSharpPlus >= 4.4.1",
       "DSharpPlus.CommandsNext >= 4.4.1",
       "DSharpPlus.Interactivity >= 4.4.1"
@@ -4382,6 +4450,10 @@
       "net6.0": {
         "targetAlias": "net6.0",
         "dependencies": {
+          "CoreRCON": {
+            "target": "Package",
+            "version": "[5.0.5, )"
+          },
           "DSharpPlus": {
             "target": "Package",
             "version": "[4.4.1, )"

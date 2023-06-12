@@ -44,6 +44,10 @@
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "CoreRCON": {
+              "target": "Package",
+              "version": "[5.0.5, )"
+            },
             "DSharpPlus": {
               "target": "Package",
               "version": "[4.4.1, )"

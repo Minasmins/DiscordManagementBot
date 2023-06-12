@@ -60,14 +60,6 @@ namespace DangerBotNamespace
             await Task.Delay(-1);
         }
 
-        private async Task CheckForUpdateCSGO()
-        {
-            while(true)
-            {
-
-            }
-        }
-
         private Task OnClientReady(ReadyEventArgs e)
         {
             return Task.CompletedTask;
