@@ -21,9 +21,14 @@ namespace DangerBotNamespace.Commands
             {
 
             
-            Color = DiscordColor.DarkGreen,
+            Color = DiscordColor.Blue,
                 Description = 
-                $"**{Config.Prefix}help:** Shows all available Commands\n" + $"**{Config.Prefix}startcsgo:** Starts the CSGO-Server\n" + $"**{Config.Prefix}stopcsgo:** Stops the CSGO-Server\n" + $"**{Config.Prefix}updatecsgo:** Stops, updates and starts the CSGO-Server\n" + $"**{Config.Prefix}rcon [Command]:** Executes [Command] directly on the  \n" + $"**{Config.Prefix}stopcsgo:** Stops the CSGO-Server-Server\n",
+                $"**{Config.Prefix}help:** Shows all available Commands\n" + 
+                $"**{Config.Prefix}startcs:** Starts the CS2-Server\n" + 
+                $"**{Config.Prefix}stopcs:** Stops the CS2-Server\n" + 
+                $"**{Config.Prefix}updatecs:** Stops, updates and starts the CS2-Server\n" + 
+                $"**{Config.Prefix}rcon [Command]:** Executes [Command] directly on the server \n"+
+                $"**{Config.Prefix}random:** Scrambles the teams and restarts the game\n",
                 Title = "DangerBot - Help"
             };
             await context.RespondAsync(embed);

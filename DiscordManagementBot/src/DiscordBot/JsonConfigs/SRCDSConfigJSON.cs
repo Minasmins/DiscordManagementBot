@@ -22,6 +22,9 @@ namespace DangerBotNamespace
         [JsonProperty("ServerPort")]
         public ushort ServerPort { get; private set; }
 
+        [JsonProperty("SteamConnectionString")]
+        public string SteamConnectionString { get; private set; }
+
         [JsonProperty("RconPassword")]
         public string RconPassword { get; private set; }
     }

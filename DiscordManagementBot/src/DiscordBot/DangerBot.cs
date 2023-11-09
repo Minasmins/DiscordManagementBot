@@ -6,7 +6,7 @@ using DSharpPlus.Interactivity;
 using DSharpPlus.Interactivity.Extensions;
 using Newtonsoft.Json;
 using DangerBotNamespace.Commands;
-
+using DSharpPlus.Entities;
 
 namespace DangerBotNamespace
 {
@@ -49,11 +49,12 @@ namespace DangerBotNamespace
 
             Commands = DangerBotClient.UseCommandsNext(CommandsConfig);
             Commands.RegisterCommands<BasicCommands>();
-            Commands.RegisterCommands<CSGOCommands>();
+            Commands.RegisterCommands<CSCommands>();
             //Hier weiter Command Klassen Registrieren
 
             //Neuen CSGOServer initieren um den dann immer weiter zu geben
             ActiveCSGOServer = CSGOGameServer.ServerInstance;
+            
 
 
             await DangerBotClient.ConnectAsync();

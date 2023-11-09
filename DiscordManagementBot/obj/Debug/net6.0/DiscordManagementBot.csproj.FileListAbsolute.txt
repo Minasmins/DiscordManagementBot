@@ -25,3 +25,6 @@ C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagemen
 C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\obj\Debug\net6.0\DiscordManagementBot.csproj.CopyComplete
 C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Debug\net6.0\CoreRCON.dll
 C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Debug\net6.0\System.IO.Pipelines.dll
+C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Debug\net6.0\Microsoft.Extensions.Logging.dll
+C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Debug\net6.0\Microsoft.Extensions.Options.dll
+C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Debug\net6.0\Microsoft.Extensions.Primitives.dll

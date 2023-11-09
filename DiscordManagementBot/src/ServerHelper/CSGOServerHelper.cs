@@ -12,20 +12,22 @@ using DSharpPlus.Entities;
 using CoreRCON;
 using CoreRCON.Parsers.Standard;
 using System.Net;
+using System.Threading.Channels;
 
 namespace DangerBotNamespace
 {
     public sealed class CSGOGameServer
     {
         private SRCDSConfigJSON SRCDSConfig {get; set;}
-        public Process CSGOProcess { get; set; }
+        public Process CS2Process { get; set; }
         public Process SteamCMDProcess { get; set; }
         public Boolean ServerNeedsUpdate { get; private set; }
         public CommandContext Context { get; set; }
         public RCON RconConnection { get; set; }
         private static readonly CSGOGameServer Instance = new CSGOGameServer();
 
-        private string UpdateText;
+        string OutputDataxline;
+        bool IsKillingServerProcess;
 
         public static CSGOGameServer ServerInstance
         {
@@ -36,62 +38,111 @@ namespace DangerBotNamespace
 
         private CSGOGameServer()
         {
-            //StartSRCDS(Guild);
             var Json = string.Empty;
             using (var fs = File.OpenRead("SRCDSConfig.json"))
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
             Json = sr.ReadToEnd();
             SRCDSConfig = JsonConvert.DeserializeObject<SRCDSConfigJSON>(Json);
             ServerNeedsUpdate = false;
-            ConnectRCon();
-
-
+            //StartSRCDS();
         }
 
        
 
-        public async Task StartSRCDS()
+        public async Task<bool> StartSRCDS()
         {
-            CSGOProcess = new System.Diagnostics.Process();
-            CSGOProcess.EnableRaisingEvents = true;
-            //CSGOProcess.OutputDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_OutputDataReceived);
-            //CSGOProcess.ErrorDataReceived += new System.Diagnostics.DataReceivedEventHandler(process_ErrorDataReceived);
-            //CSGOProcess.Exited += process_Exited;
+            IsKillingServerProcess = true;
+            CS2Process = new Process();
+            CS2Process.EnableRaisingEvents = true;
+            CS2Process.OutputDataReceived += new DataReceivedEventHandler(process_OutputDataReceived);
+            CS2Process.ErrorDataReceived += new DataReceivedEventHandler(process_ErrorDataReceived);
+            CS2Process.Exited += new EventHandler(process_Exited);
 
-            CSGOProcess.StartInfo.FileName = SRCDSConfig.srcdsPath + "\\srcdsRD.exe";
-            CSGOProcess.StartInfo.Arguments = SRCDSConfig.srcdsStartArguments;
-            CSGOProcess.StartInfo.UseShellExecute = false;
-            CSGOProcess.StartInfo.RedirectStandardError = true;
-            CSGOProcess.StartInfo.RedirectStandardOutput = true;
-            CSGOProcess.StartInfo.RedirectStandardInput = true;
+            CS2Process.StartInfo.FileName = SRCDSConfig.srcdsPath + "\\CS2.exe";
+            CS2Process.StartInfo.Arguments = SRCDSConfig.srcdsStartArguments;
+            CS2Process.StartInfo.UseShellExecute = false;
+            CS2Process.StartInfo.RedirectStandardError = true;
+            CS2Process.StartInfo.RedirectStandardOutput = true;
+            CS2Process.StartInfo.RedirectStandardInput = true;
 
-            CSGOProcess.Start();
-            CSGOProcess.BeginErrorReadLine();
-            CSGOProcess.BeginOutputReadLine();
+            CS2Process.Start();
+            CS2Process.BeginErrorReadLine();
+            CS2Process.BeginOutputReadLine();
 
-            //await ConnectRCon();
+            return await ConnectRCon(15000, true);
+        }
+
+        private static void process_OutputDataReceived(object sendingProcess,DataReceivedEventArgs outLine)
+        {
+            string line;
+            if (Instance.IsKillingServerProcess)
+            {
+                return;
+            }
+            line = (outLine.Data.ToString());
+            if (line == Instance.OutputDataxline)
+                {
+                    return;
+                };
+            
+            Console.WriteLine(line);
+            Instance.OutputDataxline = line;
+            //if (line.Length == 0)
+            //    { return; }
+            //if (line.Contains("Host activate:"))
+            //{
+            //    Instance.Context.Channel.SendMessageAsync("Server erfolgreich gestartet").Wait();
+            //}
+        }
+
+        private static void process_ErrorDataReceived(object sendingProcess, DataReceivedEventArgs outLine)
+        {
+            string line;
+            try
+            {
+                if (Instance.IsKillingServerProcess)
+                {
+                    return;
+                }
+                line = (outLine.Data.ToString());
+            }
+            catch (Exception ex) { line = ex.Message; }
+
+            Console.WriteLine(line);
+            if (line.Length == 0)
+            { return; }
+            //Instance.Context.Channel.SendMessageAsync(line).Wait();
+        }
+
+        private static void process_Exited(object sender, System.EventArgs e)
+        {
+            string line;
+            line = "CS2 process exited";
+            Console.WriteLine(line);
+            if (line.Length == 0)
+            { return; }
+            Instance.Context.Channel.SendMessageAsync(line).Wait();
         }
 
         public async Task<string> StopSRCDS()
         {
-            return await SendServerCommand("exit");
-            //Process[] workers = Process.GetProcessesByName("srcds");
-            //foreach (Process worker in workers) 
-            //{
-            //    //worker.StandardInput.WriteLine("exit");
-                
-
-
-
-            //    worker.Kill();
-            //    worker.WaitForExit();
-            //    worker.Dispose();
-            //}
+            Instance.IsKillingServerProcess = true;
+            if (CS2Process != null)
+            {
+                return await SendServerCommand("quit");
+            }
+            else
+            {
+                //CS2Process.Kill();
+                //return "CS2Process killed";
+                Instance.Context.Channel.SendMessageAsync("CS2 server already offline").Wait();
+                return ("CS2 server offline");
+            }
+            
         }
 
-        public async Task UpdateSRCDS()
+        public async Task<bool> UpdateSRCDS()
         {
-
             await StopSRCDS();
             SteamCMDProcess = new Process();
             SteamCMDProcess.EnableRaisingEvents = true;
@@ -110,24 +161,21 @@ namespace DangerBotNamespace
             SteamCMDProcess.BeginErrorReadLine();
             SteamCMDProcess.BeginOutputReadLine();
             SteamCMDProcess.WaitForExit();
-            await Context.Channel.SendMessageAsync(UpdateText);
-            await StartSRCDS();
-            
+            //await Context.Channel.SendMessageAsync(UpdateText);
+            return await StartSRCDS();
         }
-
-
 
         void Update_Exited(object sender, EventArgs e)
         {
-            
             Console.WriteLine("The srcds process has been exited/killed");
+            Context.Channel.SendMessageAsync("The cs2 process has been exited/killed");
         }
 
         void Update_ErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             try
             {
-                UpdateText += $"{e.Data}\n";
+                Context.Channel.SendMessageAsync(e.Data);
             }
             catch(Exception ex) { Console.WriteLine($"Error while recieving Error-Data: {ex.Message}"); }
             
@@ -137,56 +185,55 @@ namespace DangerBotNamespace
         {
             try
             {
-                UpdateText += $"{e.Data}\n";
-                //var SentMessage = Context.Channel.SendMessageAsync(e.Data);
-                //var Message = Message
-            }
-            catch (Exception ex) { Console.WriteLine($"Error while recieving Error-Data: {ex.Message}"); }
-        }
-
-        void steamcmd_OutputDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            try
-            {
-                Console.WriteLine($"Output Data Recieved: {e.Data}");
-                //Context.RespondAsync(e.Data);
-                if (e.Data.Contains("update"))
+                if (e.Data != null) 
                 {
-                    ServerNeedsUpdate = true;
+                    if (e.Data.Contains("verifying install") || e.Data.Contains("downloading, progress"))
+                    {
+                        Console.WriteLine(e.Data);
+                    }
+                    else
+                    {
+                        Console.WriteLine(e.Data);
+                        Context.Channel.SendMessageAsync(e.Data);
+                    }
                 }
             }
             catch (Exception ex) { Console.WriteLine($"Error while recieving Error-Data: {ex.Message}"); }
         }
 
-        public async Task ConnectRCon()
+        public async Task<bool> ConnectRCon(int DelayToConnect, bool SendInfoMsg)
         {
             Console.WriteLine($"Trying to connect...");
-           
+            Thread.Sleep(DelayToConnect);
             try
             {
                 RconConnection = new RCON(IPAddress.Parse(SRCDSConfig.ServerIP), SRCDSConfig.ServerPort, SRCDSConfig.RconPassword, 2000);
                 await RconConnection.ConnectAsync();
-                Status status = await RconConnection.SendCommandAsync<Status>("status");
-                Console.WriteLine($"Connected to: {status.Hostname}");
+                if (SendInfoMsg)
+                {
+                    Status status = await RconConnection.SendCommandAsync<Status>("status");
+                    Console.WriteLine($"Server online / RCON-Connection established to: {status.Hostname}");
+                    Context.Channel.SendMessageAsync($"Server online / RCON-Connection established to: {status.Hostname}").Wait();
+                }
+                return true;
             }
             catch 
             {
-                Console.WriteLine("Connection to SRCDS could not be established!");
+                Console.WriteLine("Connection to CS2-Server could not be established!");
+                return false;
             }
         }
 
         public async Task<string> SendServerCommand(string command)
         {
-            //await ConnectRCon();
+            await ConnectRCon(0,false);
             return await RconConnection.SendCommandAsync(command);
         }
 
         public async Task<Status> GetServerStatus()
         {
-            Status status = await RconConnection.SendCommandAsync<Status>("status");
-            return status;
+                Status status = await RconConnection.SendCommandAsync<Status>("status");
+                return status;
         }
-
-
     }
 }

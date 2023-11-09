@@ -2,34 +2,36 @@
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
+using Newtonsoft.Json;
+using System.IO;
+using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace DangerBotNamespace.Commands
 {
-    public class CSGOCommands : BaseCommandModule
+    public class CSCommands : BaseCommandModule
     {
-        [Command("startcsgo")]
-        public async Task startcsgo(CommandContext context)
+        [Command("startcs")]
+        public async Task startcs(CommandContext context)
         {
-            await context.RespondAsync("CSGO Starten");
+            await context.RespondAsync("**Starting CS2 Server...**");
             var ActiveCSGOServer = CSGOGameServer.ServerInstance;
             ActiveCSGOServer.Context = context;
             await ActiveCSGOServer.StartSRCDS();
-            Thread.Sleep(15000);
-            await ActiveCSGOServer.ConnectRCon();
         }
-        [Command("stopcsgo")]
-        public async Task stopcsgo(CommandContext context)
+        [Command("stopcs")]
+        public async Task stopcs(CommandContext context)
         {
-            await context.RespondAsync("CSGO Stoppen");
+            await context.RespondAsync("**Stopping CS2 Server...**");
             var ActiveCSGOServer = CSGOGameServer.ServerInstance;
             ActiveCSGOServer.Context = context;
             await ActiveCSGOServer.StopSRCDS();
         }
 
-        [Command("updatecsgo")]
-        public async Task updatecsgo(CommandContext context)
+        [Command("updatecs")]
+        public async Task updatecs(CommandContext context)
         {
-            await context.RespondAsync("CSGO updaten");
+            await context.RespondAsync("**Updating CS2 Server...**");
             var ActiveCSGOServer = CSGOGameServer.ServerInstance;
             ActiveCSGOServer.Context = context;
             await ActiveCSGOServer.UpdateSRCDS();
@@ -45,13 +47,20 @@ namespace DangerBotNamespace.Commands
             await context.RespondAsync(response);
         }
 
-        [Command("csgostatus")]
+        [Command("csstatus")]
         [Aliases("status")]
         public async Task csgostatus(CommandContext context)
         {
+            SRCDSConfigJSON ServerConfig;
             var ActiveCSGOServer = CSGOGameServer.ServerInstance;
+            var Json = string.Empty;
+            using (var fs = System.IO.File.OpenRead("SRCDSConfig.json"))
+            using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
+                Json = sr.ReadToEnd();
+            ServerConfig = JsonConvert.DeserializeObject<SRCDSConfigJSON>(Json);
+            var ServerLink = ServerConfig.SteamConnectionString;
             ActiveCSGOServer.Context = context;
-            try
+            if (await ActiveCSGOServer.ConnectRCon(0, false))
             {
                 var status = await ActiveCSGOServer.GetServerStatus();
 
@@ -59,34 +68,38 @@ namespace DangerBotNamespace.Commands
                 {
                     Color = DiscordColor.DarkGreen,
                     Description = $"**Name:** {status.Hostname}\n" +
-                        $"**Players:** {status.Humans} / 20\n" +
-                        $"**Current Map:** {status.Map}\n" +
-                        $"**Bots:** {status.Bots}\n" +
+                    $"**Player:** {status.Humans}/{status.MaxPlayers}\n" +
+                    $"**Map:** {status.Map}\n" +
                         $"**Version:** {status.Version}\n\n"
     ,
-                    Title = "CSGO Server Status"
+                    Title = "CS2 Server Status"
                 };
+                embed.AddField("Connection Link", ServerLink, true);
                 await context.RespondAsync(embed);
             }
-            catch (Exception ex)
+            else
             {
                 DiscordEmbedBuilder embed = new DiscordEmbedBuilder()
                 {
                     Color = DiscordColor.DarkRed,
-                    Description = $"**Name:** {ex.Message}\n" +
-                        $"**Players:** {ex.Message} / 20\n" +
-                        $"**Current Map:** {ex.Message}\n" +
-                    $"**Bots:** {ex.Message}\n" +
-                        $"**Version:** {ex.Message}\n\n" +
-                        "The server may not be started."
-    ,
-                    Title = "CSGO Server Status"
+                    Description = $"**Error:** No Connection\n" +
+                   "The server may not be started."
+,
+                    Title = "CS2 Server Status"
                 };
                 await context.RespondAsync(embed);
-                //await context.RespondAsync($"Error: {ex.Message} \nThe server may not be started.");
             }
-            
         }
 
+        [Command("randomizeteam")]
+        [Aliases("random","rt", "scramble")]
+        public async Task randomizeteam(CommandContext context)
+        {
+            var ActiveCSGOServer = CSGOGameServer.ServerInstance;
+            ActiveCSGOServer.Context = context;
+            var response = await ActiveCSGOServer.SendServerCommand("mp_scrambleteams");
+            await context.RespondAsync("Mixing Teams...");
+            await context.RespondAsync(response);
+        }
     }
 }
