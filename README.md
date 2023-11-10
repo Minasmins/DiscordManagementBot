@@ -4,6 +4,7 @@ srcdsConfig.json:
 
 "srcdsPath": "[Path to cs2.exe]",
 "srcdsStartArguments": "[Arguments to start the cs2 process with]",
+"srcdsProcessPriorityClass": "Interger 1-6 (Idle - Realtime)]"
 "SteamCMDPath" : "[Path to SteamCMD.exe]",
 "SteamCMDArguments" : "[Arguments to start SteamCMD with to update CS2 Server]",
 "ServerIP" : "[local IP]",
