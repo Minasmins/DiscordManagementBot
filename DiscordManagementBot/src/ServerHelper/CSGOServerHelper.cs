@@ -13,6 +13,7 @@ using CoreRCON;
 using CoreRCON.Parsers.Standard;
 using System.Net;
 using System.Threading.Channels;
+using System.Linq.Expressions;
 
 namespace DangerBotNamespace
 {
@@ -22,6 +23,7 @@ namespace DangerBotNamespace
         public Process CS2Process { get; set; }
         public Process SteamCMDProcess { get; set; }
         public Boolean ServerNeedsUpdate { get; private set; }
+        public string processPriority { get; private set; }
         public CommandContext Context { get; set; }
         public RCON RconConnection { get; set; }
         private static readonly CSGOGameServer Instance = new CSGOGameServer();
@@ -43,8 +45,6 @@ namespace DangerBotNamespace
             using (var sr = new StreamReader(fs, new UTF8Encoding(false)))
             Json = sr.ReadToEnd();
             SRCDSConfig = JsonConvert.DeserializeObject<SRCDSConfigJSON>(Json);
-            ServerNeedsUpdate = false;
-            //StartSRCDS();
         }
 
        
@@ -69,16 +69,50 @@ namespace DangerBotNamespace
             CS2Process.BeginErrorReadLine();
             CS2Process.BeginOutputReadLine();
 
+            switch (SRCDSConfig.srcdsProcessPriorityClass)
+            {
+                case 1:
+                    CS2Process.PriorityClass = ProcessPriorityClass.Idle;
+                    processPriority = "Idle";
+                    break;
+                case 2:
+                    CS2Process.PriorityClass = ProcessPriorityClass.BelowNormal;
+                    processPriority = "Below Normal";
+                    break;
+                case 3:
+                    CS2Process.PriorityClass = ProcessPriorityClass.Normal;
+                    processPriority = "Normal";
+                    break;
+                case 4:
+                    CS2Process.PriorityClass = ProcessPriorityClass.AboveNormal;
+                    processPriority = "Above Normal";
+                    break;
+                case 5:
+                    CS2Process.PriorityClass = ProcessPriorityClass.High;
+                    processPriority = "High";
+                    break;
+                case 6:
+                    CS2Process.PriorityClass = ProcessPriorityClass.RealTime;
+                    processPriority = "RealTime";
+                    break;
+                default:
+                    CS2Process.PriorityClass = ProcessPriorityClass.Normal;
+                    processPriority = "Normal";
+                    break;
+            }
+            CS2Process.StartInfo.UseShellExecute = false;
+            CS2Process.StartInfo.RedirectStandardError = true;
+            CS2Process.StartInfo.RedirectStandardOutput = true;
+            CS2Process.StartInfo.RedirectStandardInput = true;
+
             return await ConnectRCon(15000, true);
         }
 
         private static void process_OutputDataReceived(object sendingProcess,DataReceivedEventArgs outLine)
         {
             string line;
-            if (Instance.IsKillingServerProcess)
-            {
-                return;
-            }
+            if (outLine.Data == null)
+            { return; }
             line = (outLine.Data.ToString());
             if (line == Instance.OutputDataxline)
                 {
@@ -87,12 +121,6 @@ namespace DangerBotNamespace
             
             Console.WriteLine(line);
             Instance.OutputDataxline = line;
-            //if (line.Length == 0)
-            //    { return; }
-            //if (line.Contains("Host activate:"))
-            //{
-            //    Instance.Context.Channel.SendMessageAsync("Server erfolgreich gestartet").Wait();
-            //}
         }
 
         private static void process_ErrorDataReceived(object sendingProcess, DataReceivedEventArgs outLine)
@@ -100,18 +128,13 @@ namespace DangerBotNamespace
             string line;
             try
             {
-                if (Instance.IsKillingServerProcess)
-                {
-                    return;
-                }
+                if(outLine.Data == null)
+                { return; }
                 line = (outLine.Data.ToString());
             }
             catch (Exception ex) { line = ex.Message; }
 
             Console.WriteLine(line);
-            if (line.Length == 0)
-            { return; }
-            //Instance.Context.Channel.SendMessageAsync(line).Wait();
         }
 
         private static void process_Exited(object sender, System.EventArgs e)
@@ -133,8 +156,6 @@ namespace DangerBotNamespace
             }
             else
             {
-                //CS2Process.Kill();
-                //return "CS2Process killed";
                 Instance.Context.Channel.SendMessageAsync("CS2 server already offline").Wait();
                 return ("CS2 server offline");
             }

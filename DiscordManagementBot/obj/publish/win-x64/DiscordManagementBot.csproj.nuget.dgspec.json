@@ -46,19 +46,19 @@
           "dependencies": {
             "CoreRCON": {
               "target": "Package",
-              "version": "[5.0.5, )"
+              "version": "[5.2.1, )"
             },
             "DSharpPlus": {
               "target": "Package",
-              "version": "[4.4.1, )"
+              "version": "[4.4.2, )"
             },
             "DSharpPlus.CommandsNext": {
               "target": "Package",
-              "version": "[4.4.1, )"
+              "version": "[4.4.2, )"
             },
             "DSharpPlus.Interactivity": {
               "target": "Package",
-              "version": "[4.4.1, )"
+              "version": "[4.4.2, )"
             }
           },
           "imports": [

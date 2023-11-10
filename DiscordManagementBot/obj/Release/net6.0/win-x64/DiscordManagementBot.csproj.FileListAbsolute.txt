@@ -246,3 +246,6 @@ C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagemen
 C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Release\net6.0\win-x64\mscorrc.dll
 C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Release\net6.0\win-x64\msquic.dll
 C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Release\net6.0\win-x64\ucrtbase.dll
+C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Release\net6.0\win-x64\Microsoft.Extensions.Logging.dll
+C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Release\net6.0\win-x64\Microsoft.Extensions.Options.dll
+C:\Users\Administrator\Desktop\Development\DiscordManagementBot\DiscordManagementBot\bin\Release\net6.0\win-x64\Microsoft.Extensions.Primitives.dll

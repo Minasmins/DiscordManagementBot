@@ -10,6 +10,9 @@ namespace DangerBotNamespace
         [JsonProperty("srcdsStartArguments")]
         public string srcdsStartArguments {get; private set; }
 
+        [JsonProperty("srcdsProcessPriorityClass")]
+        public int srcdsProcessPriorityClass { get; private set; }
+
         [JsonProperty("SteamCMDPath")]
         public string SteamCMDPath { get; private set; }
         

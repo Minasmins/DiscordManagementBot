@@ -70,6 +70,7 @@ namespace DangerBotNamespace.Commands
                     Description = $"**Name:** {status.Hostname}\n" +
                     $"**Player:** {status.Humans}/{status.MaxPlayers}\n" +
                     $"**Map:** {status.Map}\n" +
+                    $"**Process Priority:** {ActiveCSGOServer.processPriority}\n" +
                         $"**Version:** {status.Version}\n\n"
     ,
                     Title = "CS2 Server Status"
